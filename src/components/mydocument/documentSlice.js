@@ -76,8 +76,14 @@ const documentSlice = createSlice({
       const field = action.payload;
       state[field][state[field].length] = templates[field];
     },
+    removeEntry: (state, action) => {
+      const { field, key } = action.payload;
+      console.log(action.payload);
+      state[field].splice(key, 1);
+    },
   },
 });
 
 export default documentSlice.reducer;
-export const { updateFieldValue, addEntry } = documentSlice.actions;
+export const { updateFieldValue, addEntry, removeEntry } =
+  documentSlice.actions;

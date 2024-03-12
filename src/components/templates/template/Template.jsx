@@ -1,7 +1,11 @@
 import { useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { useSelector } from "react-redux/es/hooks/useSelector";
-import { addEntry, updateFieldValue } from "../../mydocument/documentSlice";
+import {
+  addEntry,
+  removeEntry,
+  updateFieldValue,
+} from "../../mydocument/documentSlice";
 
 import "./template.scss";
 export default function Template() {
@@ -16,6 +20,15 @@ export default function Template() {
 
   const handleEntryAddition = (field) => () => {
     dispatch(addEntry(field));
+  };
+
+  const handleEntryDeletion = () => (event) => {
+    dispatch(
+      removeEntry({
+        field: event.target.parentElement.field,
+        key: event.target.parentElement,
+      })
+    );
   };
 
   useEffect(() => {
@@ -178,10 +191,10 @@ export default function Template() {
         </div>
         <ul className="template__section-items">
           {cv.education.map((item, key) => (
-            <li key={key} className="template__item">
+            <li key={key} field="education" className="template__item">
               <button
                 className="template__button-remove"
-                onClick={handleEntryAddition("education")}
+                onClick={handleEntryDeletion()}
               >
                 -
               </button>
