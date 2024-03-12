@@ -10,38 +10,49 @@ import {
 import "./template.scss";
 export default function Template() {
   const cv = useSelector((state) => state.document);
-
   const dispatch = useDispatch();
 
   const handleChange = (field) => (event) => {
     dispatch(updateFieldValue({ field, value: event.target.value }));
-    autoResize(event.target);
   };
 
   const handleEntryAddition = (field) => () => {
+    if (Object.values(cv[field]?.[cv[field].length - 1] ?? {}).includes("")) {
+      console.error("Cannot add new entry because the last one is incomplete.");
+      return;
+    }
     dispatch(addEntry(field));
   };
 
-  const handleEntryDeletion = () => (event) => {
-    dispatch(
-      removeEntry({
-        field: event.target.parentElement.field,
-        key: event.target.parentElement,
-      })
-    );
+  const handleEntryDeletion = (field, key) => () => {
+    dispatch(removeEntry({ field, key }));
   };
 
+  // Auto-resizing
   useEffect(() => {
-    Array.from(document.getElementsByTagName("textarea")).map((element) =>
-      autoResize(element)
-    );
-  }, []);
+    document.querySelectorAll("textarea").forEach(autoResize);
+    console.log("sdfsa");
+  }, [document.querySelectorAll("textarea")]);
 
   const autoResize = (element) => {
     element.style.height = "auto";
-    element.style.height = element.scrollHeight + "px";
-    console.log(element);
+    element.style.height = `${element.scrollHeight}px`;
   };
+
+  const Section = ({ title, field, children }) => (
+    <div className="template__section">
+      <button
+        className="template__button-add"
+        onClick={handleEntryAddition(field)}
+      >
+        +
+      </button>
+      <div className="template__section-title">
+        <h2>{title}</h2>
+      </div>
+      {children}
+    </div>
+  );
 
   return (
     <div className="template">
@@ -70,19 +81,17 @@ export default function Template() {
 
       {/* Skills */}
 
-      <div className="template__section">
-        <button
-          className="template__button-add"
-          onClick={handleEntryAddition("technologies")}
-        >
-          +
-        </button>
-        <div className="template__section-title">
-          <h2>Technologies and languages</h2>
-        </div>
+      <Section title="Technologies and languages" field="technologies">
         <ul className="template__section-items">
           {cv.technologies.map((item, key) => (
             <li key={key} className="template__item">
+              <button
+                className="template__button-remove"
+                onClick={handleEntryDeletion("technologies", key)}
+              >
+                -
+              </button>
+
               <textarea
                 type="text"
                 value={item}
@@ -91,24 +100,21 @@ export default function Template() {
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Experience */}
 
-      <div className="template__section">
-        <button
-          className="template__button-add"
-          onClick={handleEntryAddition("experience")}
-        >
-          +
-        </button>
-        <div className="template__section-title">
-          <h2>WORK EXPERIENCE</h2>
-          <span>4 years, 6 months</span>
-        </div>
+      <Section title="Work Experience" field="experience">
         <ul className="template__section-items">
           {cv.experience.map((item, key) => (
             <li key={key} className="template__item">
+              <button
+                className="template__button-remove"
+                onClick={handleEntryDeletion("experience", key)}
+              >
+                -
+              </button>
+
               <h2>
                 <textarea
                   className="template__left-textarea"
@@ -116,12 +122,14 @@ export default function Template() {
                   value={item.title}
                   onChange={handleChange(`experience.${key}.title`)}
                 />
+
                 <textarea
                   className="template__center-textarea"
                   type="text"
                   value={item.location}
                   onChange={handleChange(`experience.${key}.location`)}
                 />
+
                 <textarea
                   className="template__right-textarea"
                   type="text"
@@ -129,6 +137,7 @@ export default function Template() {
                   onChange={handleChange(`experience.${key}.duration`)}
                 />
               </h2>
+
               <textarea
                 type="text"
                 value={item.description}
@@ -137,22 +146,21 @@ export default function Template() {
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Personal projects */}
-      <div className="template__section">
-        <button
-          className="template__button-add"
-          onClick={handleEntryAddition("projects")}
-        >
-          +
-        </button>
-        <div className="template__section-title">
-          <h2>Personal projects</h2>
-        </div>
+
+      <Section title="Personal projects" field="projects">
         <ul className="template__section-items">
           {cv.projects.map((item, key) => (
             <li key={key} className="template__item">
+              <button
+                className="template__button-remove"
+                onClick={handleEntryDeletion("projects", key)}
+              >
+                -
+              </button>
+
               <h2>
                 <textarea
                   className="template__left-textarea"
@@ -175,29 +183,21 @@ export default function Template() {
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
 
       {/* Education */}
 
-      <div className="template__section">
-        <button
-          className="template__button-add"
-          onClick={handleEntryAddition("education")}
-        >
-          +
-        </button>
-        <div className="template__section-title">
-          <h2>Education</h2>
-        </div>
+      <Section title="Education" field="education">
         <ul className="template__section-items">
           {cv.education.map((item, key) => (
             <li key={key} field="education" className="template__item">
               <button
                 className="template__button-remove"
-                onClick={handleEntryDeletion()}
+                onClick={handleEntryDeletion("education", key)}
               >
                 -
               </button>
+
               <h2>
                 <textarea
                   className="template__left-textarea"
@@ -205,6 +205,7 @@ export default function Template() {
                   value={item.institutionName}
                   onChange={handleChange(`education.${key}.institutionName`)}
                 />
+
                 <textarea
                   className="template__right-textarea"
                   type="text"
@@ -212,6 +213,7 @@ export default function Template() {
                   onChange={handleChange(`education.${key}.duration`)}
                 />
               </h2>
+
               <textarea
                 type="text"
                 value={item.degree}
@@ -220,7 +222,7 @@ export default function Template() {
             </li>
           ))}
         </ul>
-      </div>
+      </Section>
     </div>
   );
 }
