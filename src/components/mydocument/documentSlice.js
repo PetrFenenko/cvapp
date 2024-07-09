@@ -61,7 +61,7 @@ const documentSlice = createSlice({
   name: "document",
   initialState,
   reducers: {
-    updateFieldValue: (state, action) => {
+     updateFieldValue: (state, action) => {
       const { field, value } = action.payload;
       const fieldPath = field.split(".");
       let currentState = state;
